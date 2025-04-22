@@ -29,6 +29,25 @@
                         <span class="hide-menu">Country</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ route('admin.brand.index') }}" aria-expanded="false">
+                        <i class="mdi mdi-tag-multiple"></i> <!-- Icon mới -->
+                        <span class="hide-menu">Brand</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ route('admin.category.index') }}" aria-expanded="false">
+                        <i class="mdi mdi-shape-outline"></i> <!-- Icon mới -->
+                        <span class="hide-menu">Category</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="{{ route('admin.product.index') }}" aria-expanded="false">
+                        <i class="mdi mdi-cart"></i> <!-- Icon mới -->
+                        <span class="hide-menu">Product</span>
+                    </a>
+                </li>
+
                 
                 
                  <li class="sidebar-item">

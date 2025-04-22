@@ -3,7 +3,7 @@
         @if ($comment->level == 0)
             <li class="media mb-4">
                 <a class="pull-left me-3" href="#">
-                    <img class="media-object rounded-circle" src="{{ asset('upload/user/avatar/' . $comment->avatar_user) }}" width="60" height="60" alt="avatar">
+                    <img class="media-object rounded-circle" src="{!! asset('upload/user/avatar/' . $comment->avatar_user) !!}" width="60" height="60" alt="avatar">
                 </a>
                 <div class="media-body">
                     <ul class="sinlge-post-meta mb-1">
@@ -33,7 +33,7 @@
                         @foreach ($comments->where('parent_id', $comment->id) as $reply)
                             <li class="media mb-3">
                                 <a class="pull-left me-3" href="#">
-                                    <img class="media-object rounded-circle" src="{{ asset('upload/user/avatar/' .$reply->avatar_user) }}" width="60" height="60" alt="avatar">
+                                    <img class="media-object rounded-circle" src="{!! asset('upload/user/avatar/' . $reply->avatar_user) !!}" width="60" height="60" alt="avatar">
                                 </a>
                                 <div class="media-body">
                                     <ul class="sinlge-post-meta mb-1">

@@ -1,5 +1,6 @@
 
 @extends('frontend.layout.master')
+@include('frontend.layout.menu-left');
 @section('content')
 <section>
     <div class="container">
@@ -18,23 +19,42 @@
                        <a href=""><img class="img-fluid " src="{{ asset('upload/user/blog/'.$blogs->image) }}" alt="{{ $blogs->title }}"></a>
                         <p>{!! $blogs->content !!}</p>
                         <div class="rating-area">
-                            <ul class="ratings">
-                                <li class="rate-this">Rate this item:</li>
+                            <ul class="ratings list-unstyled">
+                                <li class="rate-this" style="margin-top: 20px">Rate this item:</li>
                                 <li>
-                                    <div class="rate">
+                                    <div class="rate" >
                                         <div class="vote">
-                                            <div class="star_1 ratings_stars"><input value="1" type="hidden"></div>
-                                            <div class="star_2 ratings_stars"><input value="2" type="hidden"></div>
-                                            <div class="star_3 ratings_stars"><input value="3" type="hidden"></div>
-                                            <div class="star_4 ratings_stars"><input value="4" type="hidden"></div>
-                                            <div class="star_5 ratings_stars"><input value="5" type="hidden"></div>
-                                            <span class="rate-np"></span>
-                                        </div> 
-                                    </div>
+                                            @for($count = 1; $count <= 5; $count++)
+                                                @php
+                                                    $color = ($count <= ($userRating ?? $rating ?? 0)) ? 'color:#ffcc09;' : 'color:#ccc;';
+                                                @endphp
+                                                <span class="star-rating"
+                                                    style="{{ $color }} cursor:pointer; font-size:30px;"
+                                                    data-index="{{ $count }}" 
+                                                    data-blog_id="{{ $blogs->id }}"
+                                                    data-user_rating="{{ $userRating ?? 0 }}">
+                                                    ★
+                                                </span>
+                                            
+                                            @endfor
+                                           
+                                                <span class="rate-np" style="margin-top:15px" >{{ round($userRating ?? $rating ?? 0, 1) }}</span>
+                                                (<span id="total-votes"
+                                                style="margin-bottom:5px">{{ $totalVotes ?? 0 }}</span> votes)</div>
+                                            
+                                           
+                                           
+                                            <!-- 👇 Gộp điểm và votes tại đây -->
+                                
+                                        </div>
+                                     
                                 </li>
-                                <li class="color">(<span id="total-votes">{{ $totalVotes ?? '0' }}</span> votes) - Last rated: <span id="last-rated-time">N/A</span></li>
                             </ul>
                         </div>
+                        
+                        
+                        
+                    
                         <div class="pager-area">
                             <ul class="pager pull-right">
                                 @if($prevBlog)
@@ -48,59 +68,71 @@
                     </div>
                 </div><!--/blog-post-area-->
                 <script>
-                    $(document).ready(function () {
-                        // CSRF setup 1 lần duy nhất
+                    $(document).ready(function() {
                         $.ajaxSetup({
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             }
                         });
-                
-                        // Hover để đổi màu sao khi rê chuột
-                        $('.ratings_stars').hover(
-                            function () {
-                                $(this).prevAll().addBack().addClass('ratings_hover');
-                            },
-                            function () {
-                                $(this).prevAll().addBack().removeClass('ratings_hover');
-                            }
-                        );
-                
-                        // Click để đánh giá
-                        $('.ratings_stars').click(function () {
-                            var isLoggedIn = "{{ Auth::check() ? 'true' : 'false' }}";
-                
-                            if (isLoggedIn === 'true') {
-                                var rate = $(this).find("input").val();
-                                var blog_id = {{ $blogs->id }};
-                
-                                $(this).prevAll().addBack().addClass('ratings_over');
-                
-                                // Gửi AJAX đánh giá
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '{{ url("user/rate") }}',
-                                    data: {
-                                        rate: rate,
-                                        blog_id: blog_id
-                                    },
-                                    success: function (data) {
-                                        console.log(data);
-                                        $('.rate-np').text(data.average);
-                                        $('#total-votes').text(data.votes);
-                                        $('#last-rated-time').text(data.time);
-                                    },
-                                    error: function (xhr) {
-                                        console.log(xhr.responseText);
-                                        alert("Có lỗi xảy ra khi gửi đánh giá.");
-                                    }
-                                });
-                            } else {
-                                alert("Vui lòng đăng nhập để đánh giá.");
-                            }
+                    
+                        let rated = false;
+                    
+                        // Hover hiệu ứng màu
+                        $(document).on('mouseenter', '.star-rating', function () {
+                            let index = parseInt($(this).data('index'));
+                            $('.star-rating').each(function () {
+                                $(this).css('color', parseInt($(this).data('index')) <= index ? '#ffcc09' : '#ccc');
+                            });
+                        });
+                    
+                        // Trả lại màu sau khi rời chuột
+                        $(document).on('mouseleave', '.star-rating', function () {
+                            let userRating = parseInt($('.star-rating').first().attr('data-user_rating')); // fix ở đây
+                            $('.star-rating').each(function () {
+                                $(this).css('color', parseInt($(this).data('index')) <= userRating ? '#ffcc09' : '#ccc');
+                            });
+                        });
+                    
+                        // Click đánh giá
+                        $(document).on('click', '.star-rating', function () {
+                            if (rated) return;
+                    
+                            let index = $(this).data('index');
+                            let blog_id = $(this).data('blog_id');
+                    
+                            $.ajax({
+                                url: '{{ url("user/rate") }}',
+                                method: "POST",
+                                data: {
+                                    rate: index,
+                                    blog_id: blog_id,
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function (response) {
+                                    rated = true;
+                    
+                                    const newRating = response.user_rate;
+                    
+                                    // Cập nhật lại user_rating và tô màu
+                                    $('.star-rating').each(function () {
+                                        $(this).attr('data-user_rating', newRating);
+                                        let i = $(this).data('index');
+                                        $(this).css('color', i <= newRating ? '#ffcc09' : '#ccc');
+                                    });
+                    
+                                    // Cập nhật điểm trung bình và số vote
+                                    $('.rate-np').text(response.average);
+                                    $('#total-votes').text(response.votes);
+                    
+                                    alert(response.message);
+                                }
+                            });
                         });
                     });
-                </script>              
+                    </script>
+                    
+                   
+           
                 <!--/rating-area--><!--/rating-area-->
 
                 <div class="socials-share">

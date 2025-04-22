@@ -18,34 +18,28 @@ class CommentController extends Controller
             'blog_id' => $request->blog_id,
             'user_id' => Auth::id(),
             'comment' => $request->comment,
-            'parent_id' => $request->parent_id ?: null, // Sửa thành null thay vì 0
+            'parent_id' => $request->parent_id ?: null,
             'level' => 0,
             'avatar_user' => Auth::user()->avatar ?? 'images/default-avatar.png',
             'name_user' => Auth::user()->name,
             'time' => now(),
         ];
-
+    
         // Tính level nếu là reply
-        if (!is_null($data['parent_id'])) { // Kiểm tra null thay vì > 0
+        if (!is_null($data['parent_id'])) {
             $parent = Comment::findOrFail($data['parent_id']);
             $data['level'] = $parent->level + 1;
         }
-
-        // Logic update hoặc create
-        $comment = Comment::updateOrCreate(
-            [
-                'user_id' => $data['user_id'], 
-                'blog_id' => $data['blog_id'],
-                'parent_id' => $data['parent_id'] // Thêm parent_id vào điều kiện
-            ],
-            $data
-        );
-
+    
+        // Lưu comment mới
+        $comment = Comment::create($data);
+    
         return response()->json([
             'success' => true,
             'comment' => $comment
         ]);
     }
+    
     public function loadComments($blog_id)
 {
     $comments = Comment::where('blog_id', $blog_id)

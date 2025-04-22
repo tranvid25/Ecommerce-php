@@ -6,6 +6,7 @@
     <meta name="description" content="">
     <meta name="csrf-token" content="{{csrf_token()}}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/js/jquery.prettyPhoto.min.js"></script>
     <meta name="author" content="">
     <title>@yield('title', 'Trang Chủ')</title>
     <script>
@@ -64,7 +65,6 @@
     <section>
         <div class="container">
             <div class="row">
-            @include('frontend.layout.menu-left');
             <div class="col-sm-9 padding-right">
               @yield('content')
             </div>

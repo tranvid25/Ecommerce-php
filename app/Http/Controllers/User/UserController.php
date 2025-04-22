@@ -4,6 +4,9 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Admin\Country;
+use App\Models\Admin\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,10 +49,33 @@ class UserController extends Controller
     
     
     public function index(){
-        return view('frontend.index.index');
+        $products=Product::all();
+        return view('frontend.index.index',compact('products'));
     }
     public function logout(){
         Auth::logout();
         return redirect()->back();
+    }
+    public function account(){
+        $countries=Country::all();
+        return view('frontend.member.account',compact('countries'));
+    }
+    public function update(UpdateProfileRequest $request,string $id){
+        $userId=Auth::id();
+        $user=User::findOrFail($userId);
+        $data=$request->all();
+        $file=$request->avatar;
+        if(!empty($file)){
+            $data['avatar']=$file->getClientOriginalName();
+        }
+        if($user->update($data)){
+            if(!empty($file)){
+                $file->move('upload/user/avatar',$file->getClientOriginalName());
+            }
+            return redirect()->back()->with('success',__('Update profile success.'));
+        }
+        else{
+            return redirect()->back()->withErrors('Update profile error');
+        }
     }
 }

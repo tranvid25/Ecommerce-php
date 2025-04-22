@@ -20,6 +20,7 @@ class ProfileController extends Controller
         $countries = Country::all();
         return view('admin.user.profileAdmin',compact('countries'));
     }
+    
 
     /**
      * Show the form for creating a new resource.

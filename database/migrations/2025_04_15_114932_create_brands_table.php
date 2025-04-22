@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->unsignedBigInteger('parent_id')->default(0)->change();
+        Schema::create('brands', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->unsignedBigInteger('parent_id')->nullable()->change();
-        });
+        Schema::dropIfExists('brands');
     }
 };

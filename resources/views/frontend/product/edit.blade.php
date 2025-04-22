@@ -25,14 +25,15 @@
             <!-- Nội dung form -->
             <div class="col-sm-9">
                 <div class="blog-post-area">
-                    <h2 class="title text-center">Thêm sản phẩm</h2>
+                    <h2 class="title text-center">Cập nhật sản phẩm</h2>
                     <div class="signup-form">
                         <h2>Thông tin sản phẩm</h2>
-                        <form action="{{ route('frontend.product.store') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="text" name="name" placeholder="Tên sản phẩm" required>
-                            <input type="number" name="price" placeholder="Giá" required>
-                            <input type="text" name="company" placeholder="Công ty sản xuất" required>
+                        <form action="{{ route('frontend.product.update',$products->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf 
+                            @method('PUT')
+                            <input type="text" name="name" value="{{$products->name}}">
+                            <input type="number" name="price" value="{{$products->price}}">
+                            <input type="text" name="company" value="{{$products->company}}">
 
                             <!-- Danh mục -->
                             <select name="category_id" required>
@@ -57,15 +58,26 @@
                             </select>
 
                             <!-- Giá sale (ẩn/hiện theo chọn trạng thái) -->
-                            <input type="number" name="sale" id="salePrice" placeholder="Giá sale" style="display: none;">
+                            <input type="number" name="sale" id="salePrice" value="{{$products->sale}}" style="display: none;">
 
                             <!-- Mô tả sản phẩm -->
-                            <textarea name="detail" placeholder="Chi tiết sản phẩm" rows="4" required></textarea>
+                            <textarea name="detail" rows="4">{{$products->detail}}</textarea>
 
-                            <!-- Upload hình ảnh -->
-                            <input type="file" name="images[]" multiple accept="image/*" required>
-
-                            <button type="submit" class="btn btn-default">Thêm sản phẩm</button>
+                            <h4>Ảnh cũ:</h4>
+                            @php
+                                $images=json_decode($products->hinhanh,true);
+                            @endphp
+                            <div style="display:flex; gap:10px;">
+                            @foreach ($images as $img)
+                                <div style="text-align: center;">
+                                    <img src="{{asset('upload/product/' .$img)}}" alt="" style="width:50px;height:auto;object-fit:cover;">
+                                    <input type="checkbox" name="hinhanhxoa[]" value="{{ $img }}"> Xoá
+                                </div>
+                            @endforeach
+                            </div>
+                            <br><label>Thêm hình ảnh mới (tối đa 3 ảnh):</label><br>
+                            <input type="file" name="hinhanhmoi[]" multiple accept="image/*"><br><br>
+                            <button type="submit" class="btn btn-default">Cập nhật sản phẩm</button>
                         </form>
                     </div>
                 </div>

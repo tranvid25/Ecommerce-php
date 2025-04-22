@@ -1,11 +1,15 @@
 <?php
 
-namespace App\Models\Product;
+namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Galleries extends Model
+class Brand extends Model
 {
     use HasFactory;
+    protected $fillable=[
+        'name'
+    ];
+    
 }

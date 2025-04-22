@@ -1,8 +1,11 @@
 @extends('frontend.layout.master')
 @section('content')
+
 <section>
     <div class="container">
+        
         <div class="row">
+            @include('frontend.layout.menu-left');
             <div class="col-sm-9">
                 <div class="blog-post-area">
                     <h2 class="title text-center">Latest From Our Blog</h2>
