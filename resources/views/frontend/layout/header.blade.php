@@ -63,9 +63,9 @@
                                 <a href="cart.html">
                                   <i class="fa fa-shopping-cart">
                                     <span id="cart-count">
-                                      {{ session('cart') ? count(session('cart')) : 0 }}
+                                        {{ session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0 }}
                                     </span>
-                                  </i> Cart
+                                  </i> 
                                 </a>
                               </li>           
                             @auth
@@ -132,7 +132,10 @@
                 </div>
                 <div class="col-sm-3">
                     <div class="search_box pull-right">
-                        <input type="text" placeholder="Search"/>
+                        <form action="{{route('searchProduct.advance')}}" method="GET">
+                            <input type="text" name="search" placeholder="Nhập tên sản phẩm..">
+                            <button type="submit">Tìm kiếm</button>
+                        </form>
                     </div>
                 </div>
             </div>

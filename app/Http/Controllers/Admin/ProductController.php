@@ -138,6 +138,63 @@ public function destroy(string $id){
     $products->delete();
     return redirect()->route('frontend.product.my-product')->with('success','Xóa sản phẩm thành công');
 }
+public function search(Request $request)
+{
+    $products = Product::query();
 
-    
+    if ($request->filled('search')) {
+        $products->where('name', 'LIKE', '%' . $request->search . '%');
+    }
+
+    if ($request->filled('name')) {
+        $products->where('name', 'LIKE', '%' . $request->name . '%');
+    }
+
+    if ($request->filled('price_range')) {
+        switch ($request->price_range) {
+            case '1':
+                $products->whereBetween('price', [0, 100]);
+                break;
+            case '2':
+                $products->whereBetween('price', [100, 300]);
+                break;
+            case '3':
+                $products->whereBetween('price', [300, 500]);
+                break;
+            case '4':
+                $products->where('price', '>=', 500);
+                break;
+        }
+    }
+    // Filtrage par min_price et max_price (slider)
+
+    if ($request->filled('category')) {
+        $products->where('category_id', $request->category);
+    }
+
+    if ($request->filled('brand')) {
+        $products->where('brand_id', $request->brand);
+    }
+
+    if ($request->filled('status')) {
+        $products->where('status', $request->status);
+    }
+
+    $products = $products->paginate(9);
+
+    $categories = Category::all();
+    $brands = Brand::all();
+
+    // Vérifier si c'est une requête AJAX
+    return view('frontend.product.search', compact('products', 'categories', 'brands'));
+}
+public function getProducts(Request $request)
+{
+    $minPrice = $request->min_price ?? 0;
+    $maxPrice = $request->max_price ?? 5000;
+
+    $products = Product::whereBetween('price', [$minPrice, $maxPrice])->get();                                                                                                                                                                                                                                                                                                                                                                                      
+
+    return response()->json($products);
+}
 }

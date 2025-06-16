@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function store(CommentRequest $request) 
+    public function store(CommentRequest $request)
     {
         $data = [
             'blog_id' => $request->blog_id,
@@ -24,34 +24,33 @@ class CommentController extends Controller
             'name_user' => Auth::user()->name,
             'time' => now(),
         ];
-    
+
         // Tính level nếu là reply
         if (!is_null($data['parent_id'])) {
             $parent = Comment::findOrFail($data['parent_id']);
             $data['level'] = $parent->level + 1;
         }
-    
+
         // Lưu comment mới
         $comment = Comment::create($data);
-    
+
         return response()->json([
             'success' => true,
             'comment' => $comment
         ]);
     }
-    
+
     public function loadComments($blog_id)
-{
-    $comments = Comment::where('blog_id', $blog_id)
-                ->orderBy('time', 'asc')
-                ->get();
+    {
+        $comments = Comment::where('blog_id', $blog_id)
+            ->orderBy('time', 'asc')
+            ->get();
 
-    $blog = Blog::findOrFail($blog_id); // Lấy blog nếu cần thông tin blog
+        $blog = Blog::findOrFail($blog_id); // Lấy blog nếu cần thông tin blog
 
-    return view('frontend.blog.comments', [
-        'comments' => $comments,
-        'blogs' => $blog // Truyền vào view
-    ]);
-}
-
+        return view('frontend.blog.comments', [
+            'comments' => $comments,
+            'blogs' => $blog // Truyền vào view
+        ]);
+    }
 }

@@ -10,8 +10,12 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RateController;
 use App\Http\Controllers\User\BlogUserController;
+use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CommentController;
+use App\Http\Controllers\User\OrderController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Admin\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -26,8 +30,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-  return view('welcome');
+Route::get('/chat', function () {
+  return view('chat');
+});
+Route::post('/send-message', function (Request $request) {
+    event(new \App\Events\MessageSent($request->message));
+    return response()->json(['status' => 'Message Sent!']);
 });
 
 Auth::routes();
@@ -36,7 +44,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 //PROFILE
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
   Route::get('dashboard', [AdminController::class, 'index'])->name('dashboard');
-  
+
   // Profile
   Route::get('/profile', [ProfileController::class, 'index'])->name('user.profile');
   Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
@@ -76,6 +84,8 @@ Route::get('/load-comments/{blog_id}', [CommentController::class, 'loadComments'
 Route::get('/user/account',[UserController::class,'account'])->name('user.account');
 Route::put('/user/update_account/{id}',[UserController::class,'update'])->name('user.account.update');
 //product
+Route::get('/search/advance',[ProductController::class,'search'])->name('searchProduct.advance');
+Route::get('/search/price',[ProductController::class,'getProducts'])->name('searchProduct.price');
 Route::get('product/index',[ProductController::class,'index'])->name('frontend.product.my-product');
 Route::get('product/edit/{id}',[ProductController::class,'edit'])->name('frontend.product.edit');
 Route::get('product/detail/{id}',[ProductController::class,'show'])->name('frontend.product.detail');
@@ -85,6 +95,20 @@ Route::get('product/add', [ProductController::class, 'create'])->name('frontend.
 // Xử lý lưu sản phẩm (POST)
 Route::post('product/store', [ProductController::class, 'store'])->name('frontend.product.store');
 Route::delete('product/delete/{id}',[ProductController::class,'destroy'])->name('frontend.product.destroy');
-//add to cart
-Route::post('/add/cart')
 
+//add to cart
+Route::post('add/tocart',[CartController::class,'addCart'])->name('add.to.cart');
+Route::get('/view/cart',[CartController::class,'viewCart'])->name('cart.page');
+Route::post('/update/cart',[CartController::class,'update'])->name('cart.update');
+Route::post('/cart/delete', [CartController::class, 'delete'])->name('cart.delete');
+
+//lưu đơn hàng
+//
+Route::get('/order/form',[OrderController::class,'index'])->name('order.form');
+Route::post('/order/register',[OrderController::class,'quickRegister'])->name('order.register');
+Route::post('/order/place',[OrderController::class,'placeOrder'])->name('order.place');
+
+//Tìm kiếm theo tên
+Route::get('/message', 'App\Http\Controllers\PusherController@index');
+Route::post('/broadcast', 'App\Http\Controllers\PusherController@broadcast');
+Route::post('/receive', 'App\Http\Controllers\PusherController@receive');

@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{csrf_token()}}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prettyPhoto/3.1.6/js/jquery.prettyPhoto.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
     <meta name="author" content="">
     <title>@yield('title', 'Trang Chủ')</title>
     <script>
@@ -31,7 +32,8 @@
     <script src="{{ asset('frontend/js/html5shiv.js') }}"></script>
     <script src="{{ asset('frontend/js/respond.min.js') }}"></script>
     <![endif]-->
-    
+    <!-- Thêm CSS của noUiSlider -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.css">
     <link rel="shortcut icon" href="{{ asset('frontend/images/ico/favicon.ico') }}">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ asset('frontend/images/ico/apple-touch-icon-144-precomposed.png') }}">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{ asset('frontend/images/ico/apple-touch-icon-114-precomposed.png') }}">
@@ -65,19 +67,21 @@
     <section>
         <div class="container">
             <div class="row">
+              @include('frontend.layout.menu-left')
             <div class="col-sm-9 padding-right">
               @yield('content')
             </div>
-           
+
             </div>     <!-- Phần nội dung sẽ được thay thế từ file con -->
         </div>
-    </section> 
+    </section>
     @include('frontend.layout.footer')<!-- Gọi file footer.blade.php -->
     <script src="{{ asset('frontend/js/price-range.js') }}"></script>
     <script src="{{ asset('frontend/js/jquery.scrollUp.min.js') }}"></script>
     <script src="{{ asset('frontend/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('frontend/js/jquery.prettyPhoto.js') }}"></script>
     <script src="{{ asset('frontend/js/main.js') }}"></script>
-
+    <!-- Thêm JS của noUiSlider -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.7.0/nouislider.min.js"></script>
 </body>
 </html>

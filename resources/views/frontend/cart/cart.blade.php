@@ -4,16 +4,16 @@
     <div class="container">
         <div class="breadcrumbs">
             <ol class="breadcrumb">
-              <li><a href="#">Home</a></li>
-              <li class="active">Shopping Cart</li>
+                <li><a href="{{ url('/') }}">Home</a></li>
+                <li class="active">Shopping Cart</li>
             </ol>
         </div>
         <div class="table-responsive cart_info">
             <table class="table table-condensed">
                 <thead>
                     <tr class="cart_menu">
-                        <td class="image">Item</td>
-                        <td class="description"></td>
+                        <td class="image">Image</td>
+                        <td class="description">Name</td>
                         <td class="price">Price</td>
                         <td class="quantity">Quantity</td>
                         <td class="total">Total</td>
@@ -21,87 +21,113 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="cart_product">
-                            <a href=""><img src="images/cart/one.png" alt=""></a>
-                        </td>
-                        <td class="cart_description">
-                            <h4><a href="">Colorblock Scuba</a></h4>
-                            <p>Web ID: 1089772</p>
-                        </td>
-                        <td class="cart_price">
-                            <p>$59</p>
-                        </td>
-                        <td class="cart_quantity">
-                            <div class="cart_quantity_button">
-                                <a class="cart_quantity_up" href=""> + </a>
-                                <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                <a class="cart_quantity_down" href=""> - </a>
-                            </div>
-                        </td>
-                        <td class="cart_total">
-                            <p class="cart_total_price">$59</p>
-                        </td>
-                        <td class="cart_delete">
-                            <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="cart_product">
-                            <a href=""><img src="images/cart/two.png" alt=""></a>
-                        </td>
-                        <td class="cart_description">
-                            <h4><a href="">Colorblock Scuba</a></h4>
-                            <p>Web ID: 1089772</p>
-                        </td>
-                        <td class="cart_price">
-                            <p>$59</p>
-                        </td>
-                        <td class="cart_quantity">
-                            <div class="cart_quantity_button">
-                                <a class="cart_quantity_up" href=""> + </a>
-                                <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                <a class="cart_quantity_down" href=""> - </a>
-                            </div>
-                        </td>
-                        <td class="cart_total">
-                            <p class="cart_total_price">$59</p>
-                        </td>
-                        <td class="cart_delete">
-                            <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="cart_product">
-                            <a href=""><img src="images/cart/three.png" alt=""></a>
-                        </td>
-                        <td class="cart_description">
-                            <h4><a href="">Colorblock Scuba</a></h4>
-                            <p>Web ID: 1089772</p>
-                        </td>
-                        <td class="cart_price">
-                            <p>$59</p>
-                        </td>
-                        <td class="cart_quantity">
-                            <div class="cart_quantity_button">
-                                <a class="cart_quantity_up" href=""> + </a>
-                                <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                <a class="cart_quantity_down" href=""> - </a>
-                            </div>
-                        </td>
-                        <td class="cart_total">
-                            <p class="cart_total_price">$59</p>
-                        </td>
-                        <td class="cart_delete">
-                            <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                        </td>
-                    </tr>
+                    @if(!empty($cart))
+                        @foreach($cart as $item)
+                        <tr data-id="{{$item['Id']}}">
+                            <td class="cart_product">
+                                @php
+                                    $images = json_decode($item['hinhanh'], true);
+                                    $firstImage = $images[0] ?? 'default.png';
+                                @endphp
+                                <a href="#"><img src="{{ asset('upload/product/' . $firstImage) }}" width="80"></a>
+                            </td>
+                            <td class="cart_description">
+                                <h4>{{ $item['name'] }}</h4>
+                                <p>ID: {{ $item['Id'] }}</p>
+                            </td>
+                            <td class="cart_price">
+                                <p>{{ number_format($item['price']) }}₫</p>
+                            </td>
+                            <td class="cart_quantity">
+                                <div class="cart_quantity_button">
+                                    <a class="cart_quantity_up" data-id="{{$item['Id']}}"> + </a>
+                                    <input class="cart_quantity_input" type="text" name="quantity" value="{{ $item['quantity'] }}" autocomplete="off" size="2">
+                                    <a class="cart_quantity_down" data-id="{{$item['Id']}}"> - </a>
+                                </div>
+                            </td>
+                            <td class="cart_total">
+                                <p class="cart_total_price">
+                                    {{ number_format($item['price'] * $item['quantity']) }}₫
+                                </p>
+                            </td>
+                            <td class="cart_delete">
+                                <a class="cart_quantity_delete" data-id="{{$item['Id']}}"><i class="fa fa-times"></i></a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr><td colspan="6">Giỏ hàng trống</td></tr>
+                    @endif
                 </tbody>
             </table>
         </div>
+        <div class="total_area text-end mt-4">
+            <h4>Tổng tiền:
+                <span id="cart-total">{{number_format($total)}}đ</span>
+            </h4>
+        </div>
+        <script>
+            function updateCart(id,action){
+                $.ajax({
+                    url:"{{route('cart.update')}}",
+                    method:'POST',
+                    data:{
+                        _token:"{{csrf_token()}}",
+                        id:id,
+                        action:action
+                    },
+                    success:function(res){
+                        $('tr[data-id="' + id + '"] .cart_quantity_input').val(res.new_quantity);
+                        $('tr[data-id="' + id + '"] .cart_total_price').text(res.new_total.toLocaleString() + '₫');
+                        $('#cart-total').text(res.cart_total.toLocaleString() + '₫');
+                    },
+                    error:function(){
+                        alert("Lỗi cập nhật giỏ hàng");
+                    }
+                })
+            }
+            $(document).ready(function(){
+                $('.cart_quantity_up').click(function(){
+                    let id=$(this).data('id');
+                    updateCart(id,'tang');
+                })
+                $('.cart_quantity_down').click(function(){
+                    let id=$(this).data('id');
+                    updateCart(id,'giam');
+                })
+            });
+            $('.cart_quantity_delete').click(function(e){
+    e.preventDefault();
+    let id = $(this).data('id');
+
+    if(confirm('Bạn có chắc muốn xóa sản phẩm này không?')) {
+        $.ajax({
+            url: "{{ route('cart.delete') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: id
+            },
+            success: function(res){
+                $('tr[data-id="' + id + '"]').remove();
+                $('#cart-total').text(res.cart_total.toLocaleString() + '₫');
+
+                // Nếu giỏ hàng trống
+                if ($('.cart_info tbody tr').length == 0) {
+                    $('.cart_info tbody').html('<tr><td colspan="6">Giỏ hàng trống</td></tr>');
+                }
+            },
+            error: function(){
+                alert("Xóa sản phẩm thất bại");
+            }
+        });
+    }
+});
+
+        </script>
     </div>
-</section> <!--/#cart_items-->
+</section>
+ <!--/#cart_items-->
 
 <section id="do_action">
     <div class="container">
